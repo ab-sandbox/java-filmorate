@@ -71,4 +71,8 @@ public class UserController {
             user.setName(user.getLogin());
         }
     }
+
+    private int generateId() {
+        return nextId++;
+    }
 }
