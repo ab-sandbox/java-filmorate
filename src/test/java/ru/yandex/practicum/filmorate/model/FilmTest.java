@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,11 +16,7 @@ class FilmTest {
 
     @Test
     void shouldPassValidationForValidFilm() {
-        Film film = createValidFilm();
-
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertTrue(violations.isEmpty());
+        assertTrue(isValid(createValidFilm()));
     }
 
     @Test
@@ -31,9 +25,7 @@ class FilmTest {
                 .name("")
                 .build();
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertFalse(violations.isEmpty());
+        assertFalse(isValid(film));
     }
 
     @Test
@@ -42,9 +34,7 @@ class FilmTest {
                 .description("a".repeat(200))
                 .build();
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertTrue(violations.isEmpty());
+        assertTrue(isValid(film));
     }
 
     @Test
@@ -53,9 +43,7 @@ class FilmTest {
                 .description("a".repeat(201))
                 .build();
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertFalse(violations.isEmpty());
+        assertFalse(isValid(film));
     }
 
     @Test
@@ -64,9 +52,7 @@ class FilmTest {
                 .duration(0)
                 .build();
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertFalse(violations.isEmpty());
+        assertFalse(isValid(film));
     }
 
     @Test
@@ -75,9 +61,7 @@ class FilmTest {
                 .duration(-1)
                 .build();
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertFalse(violations.isEmpty());
+        assertFalse(isValid(film));
     }
 
     @Test
@@ -86,9 +70,7 @@ class FilmTest {
                 .releaseDate(LocalDate.of(1895, 12, 28))
                 .build();
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
-
-        assertTrue(violations.isEmpty());
+        assertTrue(isValid(film));
     }
 
     @Test
@@ -97,9 +79,11 @@ class FilmTest {
                 .releaseDate(LocalDate.of(1895, 12, 27))
                 .build();
 
-        Set<ConstraintViolation<Film>> violations = validator.validate(film);
+        assertFalse(isValid(film));
+    }
 
-        assertFalse(violations.isEmpty());
+    private boolean isValid(Film film) {
+        return validator.validate(film).isEmpty();
     }
 
     private Film createValidFilm() {
