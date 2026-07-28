@@ -65,7 +65,7 @@ class UserTest {
     }
 
     @Test
-    void shouldRejectLoginContainingSpaces() {
+    void shouldRejectLoginWithSpaces() {
         User user = createValidUser().toBuilder()
                 .login("ivan petrov")
                 .build();
