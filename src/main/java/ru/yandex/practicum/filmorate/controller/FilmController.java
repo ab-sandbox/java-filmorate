@@ -41,6 +41,11 @@ public class FilmController {
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
+            log.warn(
+                    "Попытка обновить несуществующий фильм с id={}",
+                    film.getId()
+            );
+
             throw new ValidationException(
                     "Фильм с id=" + film.getId() + " не найден."
             );
