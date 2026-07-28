@@ -64,6 +64,15 @@ class UserTest {
         assertFalse(isValid(user));
     }
 
+    @Test
+    void shouldRejectLoginContainingSpaces() {
+        User user = createValidUser().toBuilder()
+                .login("ivan petrov")
+                .build();
+
+        assertFalse(isValid(user));
+    }
+
     private boolean isValid(User user) {
         return validator.validate(user).isEmpty();
     }
