@@ -1,12 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder(toBuilder = true)
@@ -30,6 +36,9 @@ public class Film {
 
     @Positive
     private int duration;
+
+    @Builder.Default
+    private Set<Integer> likes = new HashSet<>();
 
     @AssertTrue(message = "Дата релиза фильма не может быть раньше 28 декабря 1895 года")
     public boolean isReleaseDateValid() {
