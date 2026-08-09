@@ -10,6 +10,8 @@ public interface UserStorage {
 
     User findById(int id);
 
+    boolean existsById(int id);
+
     User create(User user);
 
     User update(User user);
