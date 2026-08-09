@@ -2,67 +2,58 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
 
-    private final Map<Integer, Film> films = new LinkedHashMap<>();
+    private final FilmStorage filmStorage;
 
-    private int nextId = 1;
+    @Autowired
+    public FilmController(FilmStorage filmStorage) {
+        this.filmStorage = filmStorage;
+    }
 
     @GetMapping
     public Collection<Film> getAll() {
-        return films.values();
+        return filmStorage.findAll();
     }
 
     @PostMapping
     public Film create(@Valid @RequestBody Film film) {
-        film.setId(generateId());
-        films.put(film.getId(), film);
+        Film createdFilm = filmStorage.create(film);
 
         log.info(
                 "Создан фильм: id={}, name='{}'",
-                film.getId(),
-                film.getName()
+                createdFilm.getId(),
+                createdFilm.getName()
         );
 
-        return film;
+        return createdFilm;
     }
 
     @PutMapping
     public Film update(@Valid @RequestBody Film film) {
-        if (!films.containsKey(film.getId())) {
-            log.warn(
-                    "Попытка обновить несуществующий фильм с id={}",
-                    film.getId()
-            );
-
-            throw new ValidationException(
-                    "Фильм с id=" + film.getId() + " не найден."
-            );
-        }
-
-        films.put(film.getId(), film);
+        Film updatedFilm = filmStorage.update(film);
 
         log.info(
                 "Обновлен фильм: id={}, name='{}'",
-                film.getId(),
-                film.getName()
+                updatedFilm.getId(),
+                updatedFilm.getName()
         );
 
-        return film;
-    }
-
-    private int generateId() {
-        return nextId++;
+        return updatedFilm;
     }
 }
