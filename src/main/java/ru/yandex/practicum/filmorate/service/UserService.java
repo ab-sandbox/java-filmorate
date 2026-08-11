@@ -46,6 +46,9 @@ public class UserService {
 
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
+
+        userStorage.update(user);
+        userStorage.update(friend);
     }
 
     public void removeFriend(int userId, int friendId) {
@@ -54,6 +57,9 @@ public class UserService {
 
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
+
+        userStorage.update(user);
+        userStorage.update(friend);
     }
 
     public List<User> getFriends(int userId) {

@@ -51,6 +51,7 @@ public class FilmService {
         User user = userStorage.findById(userId);
 
         film.getLikes().add(user.getId());
+        filmStorage.update(film);
     }
 
     public void removeLike(int filmId, int userId) {
@@ -58,6 +59,7 @@ public class FilmService {
         User user = userStorage.findById(userId);
 
         film.getLikes().remove(user.getId());
+        filmStorage.update(film);
     }
 
     public List<Film> getPopularFilms(int count) {
