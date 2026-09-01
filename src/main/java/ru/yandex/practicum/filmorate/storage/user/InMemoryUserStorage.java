@@ -6,9 +6,10 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-@Component
+@Component("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Integer, User> users = new LinkedHashMap<>();
@@ -60,6 +61,26 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void delete(int id) {
         users.remove(id);
+    }
+
+    @Override
+    public void addFriend(int userId, int friendId) {
+
+    }
+
+    @Override
+    public void removeFriend(int userId, int friendId) {
+
+    }
+
+    @Override
+    public List<User> findFriends(int userId) {
+        return List.of();
+    }
+
+    @Override
+    public List<User> findCommonFriends(int userId, int otherId) {
+        return List.of();
     }
 
     private int generateId() {
