@@ -43,9 +43,6 @@ public class Film {
     @Builder.Default
     private Set<Genre> genres = new HashSet<>();
 
-    @Builder.Default
-    private Set<Integer> likes = new HashSet<>();
-
     @AssertTrue(message = "Дата релиза фильма не может быть раньше 28 декабря 1895 года")
     public boolean isReleaseDateValid() {
         return releaseDate == null || !releaseDate.isBefore(CINEMA_BIRTHDAY);

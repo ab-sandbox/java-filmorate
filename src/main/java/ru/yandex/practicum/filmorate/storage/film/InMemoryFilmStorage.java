@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -54,6 +55,21 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void delete(int id) {
         films.remove(id);
+    }
+
+    @Override
+    public void addLike(int filmId, int userId) {
+
+    }
+
+    @Override
+    public void removeLike(int filmId, int userId) {
+
+    }
+
+    @Override
+    public List<Film> findPopular(int count) {
+        return List.of();
     }
 
     private int generateId() {
