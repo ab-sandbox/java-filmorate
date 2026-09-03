@@ -14,7 +14,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
 
-@Component("userDbStorage")
+@Component
 public class UserDbStorage implements UserStorage {
 
     private static final int CONFIRMED_FRIENDSHIP_STATUS_ID = 2;

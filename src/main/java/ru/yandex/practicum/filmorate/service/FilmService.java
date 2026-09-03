@@ -20,8 +20,8 @@ public class FilmService {
     private final GenreStorage genreStorage;
 
     public FilmService(
-            @Qualifier("filmDbStorage") FilmStorage filmStorage,
-            @Qualifier("userDbStorage") UserStorage userStorage,
+            FilmStorage filmStorage,
+            UserStorage userStorage,
             MpaStorage mpaStorage,
             GenreStorage genreStorage
     ) {

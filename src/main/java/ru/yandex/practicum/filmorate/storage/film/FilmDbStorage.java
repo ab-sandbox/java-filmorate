@@ -18,7 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component("filmDbStorage")
+@Component
 public class FilmDbStorage implements FilmStorage {
 
     private static final String FILM_SELECT = """
