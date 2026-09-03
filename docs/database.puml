@@ -49,18 +49,11 @@ entity film_likes {
     (film_id, user_id) <<UNIQUE>>
 }
 
-entity friendship_statuses {
-    * friendship_status_id : integer <<PK>>
-    --
-    name : varchar <<NOT NULL, UNIQUE>>
-}
-
 entity friendships {
     * friendship_id : integer <<PK>>
     --
     requester_id : integer <<FK, NOT NULL>>
     receiver_id : integer <<FK, NOT NULL>>
-    friendship_status_id : integer <<FK, NOT NULL>>
     --
     (requester_id, receiver_id) <<UNIQUE>>
 }
@@ -75,7 +68,5 @@ users ||--o{ film_likes
 
 users ||--o{ friendships : requester
 users ||--o{ friendships : receiver
-
-friendship_statuses ||--o{ friendships
 
 @enduml

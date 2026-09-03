@@ -17,8 +17,6 @@ import java.util.List;
 @Component
 public class UserDbStorage implements UserStorage {
 
-    private static final int CONFIRMED_FRIENDSHIP_STATUS_ID = 2;
-
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -157,18 +155,12 @@ public class UserDbStorage implements UserStorage {
         String sql = """
                 INSERT INTO friendships (
                     requester_id,
-                    receiver_id,
-                    friendship_status_id
+                    receiver_id
                 )
-                VALUES (?, ?, ?)
+                VALUES (?, ?)
                 """;
 
-        jdbcTemplate.update(
-                sql,
-                userId,
-                friendId,
-                CONFIRMED_FRIENDSHIP_STATUS_ID
-        );
+        jdbcTemplate.update(sql, userId, friendId);
     }
 
     @Override
@@ -199,15 +191,13 @@ public class UserDbStorage implements UserStorage {
                 JOIN friendships f
                   ON u.user_id = f.receiver_id
                 WHERE f.requester_id = ?
-                  AND f.friendship_status_id = ?
                 ORDER BY u.user_id
                 """;
 
         return jdbcTemplate.query(
                 sql,
                 this::mapRow,
-                userId,
-                CONFIRMED_FRIENDSHIP_STATUS_ID
+                userId
         );
     }
 
@@ -229,8 +219,6 @@ public class UserDbStorage implements UserStorage {
                   ON u.user_id = f1.receiver_id
                 WHERE f1.requester_id = ?
                   AND f2.requester_id = ?
-                  AND f1.friendship_status_id = ?
-                  AND f2.friendship_status_id = ?
                 ORDER BY u.user_id
                 """;
 
@@ -238,9 +226,7 @@ public class UserDbStorage implements UserStorage {
                 sql,
                 this::mapRow,
                 userId,
-                otherId,
-                CONFIRMED_FRIENDSHIP_STATUS_ID,
-                CONFIRMED_FRIENDSHIP_STATUS_ID
+                otherId
         );
     }
 

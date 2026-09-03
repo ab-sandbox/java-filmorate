@@ -1,6 +1,7 @@
 ## Схема базы данных
 
-Для хранения данных приложения спроектирована реляционная база данных, отражающая существующую бизнес-логику `Filmorate`.
+Для хранения данных приложения спроектирована реляционная база данных, отражающая существующую бизнес-логику
+`Filmorate`.
 
 ![ER-диаграмма базы данных](docs/database.png)
 
@@ -12,8 +13,7 @@
 * `genres` — справочник жанров.
 * `film_genres` — связь фильмов и жанров (многие ко многим).
 * `film_likes` — лайки пользователей фильмам.
-* `friendships` — отношения дружбы между пользователями.
-* `friendship_statuses` — справочник статусов дружбы.
+* `friendships` — односторонние отношения дружбы между пользователями.
 
 ### Особенности модели
 
@@ -24,13 +24,13 @@
 * фильм ↔ жанр — `film_genres`;
 * пользователь ↔ фильм — `film_likes`.
 
-Для дружбы используется отдельная сущность `friendships`, которая хранит:
+Дружба в `Filmorate` является односторонней. Таблица `friendships` хранит:
 
-* инициатора запроса (`requester_id`);
-* получателя запроса (`receiver_id`);
-* текущий статус дружбы.
+* пользователя, добавившего другого пользователя в друзья (`requester_id`);
+* пользователя, добавленного в друзья (`receiver_id`).
 
-Статусы вынесены в отдельный справочник `friendship_statuses`, что позволяет хранить только допустимые значения состояний.
+Наличие записи в таблице `friendships` означает, что пользователь `requester_id` добавил пользователя `receiver_id` в
+свой список друзей. Отдельного подтверждения дружбы не требуется.
 
 Для предотвращения дублирования связей используются уникальные ограничения на пары внешних ключей.
 
@@ -90,48 +90,23 @@ LIMIT :count;
 
 ```sql
 SELECT u.*
-FROM friendships AS fs
-JOIN users AS u
-    ON u.user_id =
-       CASE
-           WHEN fs.requester_id = :userId
-               THEN fs.receiver_id
-           ELSE fs.requester_id
-       END
-JOIN friendship_statuses AS fss
-    ON fs.friendship_status_id = fss.friendship_status_id
-WHERE (fs.requester_id = :userId
-       OR fs.receiver_id = :userId)
-  AND fss.name = 'CONFIRMED';
+FROM users AS u
+JOIN friendships AS f
+    ON u.user_id = f.receiver_id
+WHERE f.requester_id = :userId
+ORDER BY u.user_id;
 ```
 
 ### Получить общих друзей двух пользователей
 
 ```sql
-SELECT DISTINCT u.*
+SELECT u.*
 FROM users AS u
-WHERE u.user_id IN (
-    SELECT CASE
-               WHEN requester_id = :userId
-                   THEN receiver_id
-               ELSE requester_id
-           END
-    FROM friendships AS fs
-    JOIN friendship_statuses AS fss
-        ON fs.friendship_status_id = fss.friendship_status_id
-    WHERE (requester_id = :userId OR receiver_id = :userId)
-      AND fss.name = 'CONFIRMED'
-)
-AND u.user_id IN (
-    SELECT CASE
-               WHEN requester_id = :otherId
-                   THEN receiver_id
-               ELSE requester_id
-           END
-    FROM friendships AS fs
-    JOIN friendship_statuses AS fss
-        ON fs.friendship_status_id = fss.friendship_status_id
-    WHERE (requester_id = :otherId OR receiver_id = :otherId)
-      AND fss.name = 'CONFIRMED'
-);
+JOIN friendships AS f1
+    ON u.user_id = f1.receiver_id
+JOIN friendships AS f2
+    ON u.user_id = f2.receiver_id
+WHERE f1.requester_id = :userId
+  AND f2.requester_id = :otherId
+ORDER BY u.user_id;
 ```

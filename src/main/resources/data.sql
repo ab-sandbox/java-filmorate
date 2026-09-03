@@ -13,10 +13,3 @@ MERGE INTO genres (genre_id, name) KEY (genre_id) VALUES
     (4, 'Триллер'),
     (5, 'Документальный'),
     (6, 'Боевик');
-
-MERGE INTO friendship_statuses (
-    friendship_status_id,
-    name
-) KEY (friendship_status_id) VALUES
-    (1, 'PENDING'),
-    (2, 'CONFIRMED');
