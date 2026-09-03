@@ -4,7 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -13,14 +16,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @JdbcTest
-@Import(UserDbStorage.class)
+@Import({
+        UserDbStorage.class,
+        FilmDbStorage.class
+})
 class UserDbStorageTest {
 
     private final UserDbStorage userStorage;
+    private final FilmDbStorage filmStorage;
 
     @Autowired
-    UserDbStorageTest(UserDbStorage userStorage) {
+    UserDbStorageTest(
+            UserDbStorage userStorage,
+            FilmDbStorage filmStorage
+    ) {
         this.userStorage = userStorage;
+        this.filmStorage = filmStorage;
     }
 
     @Test
@@ -72,6 +83,42 @@ class UserDbStorageTest {
         userStorage.delete(user.getId());
 
         assertThat(userStorage.existsById(user.getId())).isFalse();
+    }
+
+    @Test
+    void shouldDeleteUserWithLikesAndFriendships() {
+        User user = userStorage.create(
+                createUser("user@example.com", "user")
+        );
+
+        User friend = userStorage.create(
+                createUser("friend@example.com", "friend")
+        );
+
+        User anotherUser = userStorage.create(
+                createUser("another@example.com", "another")
+        );
+
+        Film film = filmStorage.create(createFilm("Film"));
+
+        userStorage.addFriend(user.getId(), friend.getId());
+        userStorage.addFriend(anotherUser.getId(), user.getId());
+
+        filmStorage.addLike(film.getId(), user.getId());
+
+        userStorage.delete(user.getId());
+
+        assertThat(userStorage.existsById(user.getId()))
+                .isFalse();
+
+        assertThat(userStorage.findFriends(anotherUser.getId()))
+                .isEmpty();
+
+        assertThat(userStorage.existsById(friend.getId()))
+                .isTrue();
+
+        assertThat(userStorage.existsById(anotherUser.getId()))
+                .isTrue();
     }
 
     @Test
@@ -179,6 +226,16 @@ class UserDbStorageTest {
                 .login(login)
                 .name("Test User")
                 .birthday(LocalDate.of(1990, 1, 1))
+                .build();
+    }
+
+    private Film createFilm(String name) {
+        return Film.builder()
+                .name(name)
+                .description("Description")
+                .releaseDate(LocalDate.of(2000, 1, 1))
+                .duration(120)
+                .mpa(new Mpa(1, null))
                 .build();
     }
 }

@@ -136,6 +136,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void delete(int id) {
+        findById(id);
+
+        deleteLikes(id);
+        deleteFriendships(id);
+
         String sql = """
                 DELETE FROM users
                 WHERE user_id = ?
@@ -250,5 +255,24 @@ public class UserDbStorage implements UserStorage {
                 .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
+    }
+
+    private void deleteLikes(int userId) {
+        String sql = """
+                DELETE FROM film_likes
+                WHERE user_id = ?
+                """;
+
+        jdbcTemplate.update(sql, userId);
+    }
+
+    private void deleteFriendships(int userId) {
+        String sql = """
+                DELETE FROM friendships
+                WHERE requester_id = ?
+                   OR receiver_id = ?
+                """;
+
+        jdbcTemplate.update(sql, userId, userId);
     }
 }
