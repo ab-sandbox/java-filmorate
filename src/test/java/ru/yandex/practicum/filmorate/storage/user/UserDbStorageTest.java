@@ -220,6 +220,23 @@ class UserDbStorageTest {
                 .containsExactly(common.getId());
     }
 
+    @Test
+    void shouldAllowAddingSameFriendTwice() {
+        User first = userStorage.create(
+                createUser("first@example.com", "first")
+        );
+        User second = userStorage.create(
+                createUser("second@example.com", "second")
+        );
+
+        userStorage.addFriend(first.getId(), second.getId());
+        userStorage.addFriend(first.getId(), second.getId());
+
+        assertThat(userStorage.findFriends(first.getId()))
+                .extracting(User::getId)
+                .containsExactly(second.getId());
+    }
+
     private User createUser(String email, String login) {
         return User.builder()
                 .email(email)

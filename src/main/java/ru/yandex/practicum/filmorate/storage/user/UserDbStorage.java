@@ -152,6 +152,10 @@ public class UserDbStorage implements UserStorage {
         findById(userId);
         findById(friendId);
 
+        if (friendshipExists(userId, friendId)) {
+            return;
+        }
+
         String sql = """
                 INSERT INTO friendships (
                     requester_id,
@@ -260,5 +264,23 @@ public class UserDbStorage implements UserStorage {
                 """;
 
         jdbcTemplate.update(sql, userId, userId);
+    }
+
+    private boolean friendshipExists(int userId, int friendId) {
+        String sql = """
+                SELECT COUNT(*)
+                FROM friendships
+                WHERE requester_id = ?
+                  AND receiver_id = ?
+                """;
+
+        Integer count = jdbcTemplate.queryForObject(
+                sql,
+                Integer.class,
+                userId,
+                friendId
+        );
+
+        return count != null && count > 0;
     }
 }

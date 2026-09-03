@@ -156,9 +156,9 @@ public class FilmDbStorage implements FilmStorage {
         deleteLikes(id);
 
         String sql = """
-            DELETE FROM films
-            WHERE film_id = ?
-            """;
+                DELETE FROM films
+                WHERE film_id = ?
+                """;
 
         jdbcTemplate.update(sql, id);
     }
@@ -166,6 +166,10 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void addLike(int filmId, int userId) {
         findById(filmId);
+
+        if (likeExists(filmId, userId)) {
+            return;
+        }
 
         String sql = """
                 INSERT INTO film_likes (film_id, user_id)
@@ -304,6 +308,24 @@ public class FilmDbStorage implements FilmStorage {
                 """;
 
         jdbcTemplate.update(sql, filmId);
+    }
+
+    private boolean likeExists(int filmId, int userId) {
+        String sql = """
+                SELECT COUNT(*)
+                FROM film_likes
+                WHERE film_id = ?
+                  AND user_id = ?
+                """;
+
+        Integer count = jdbcTemplate.queryForObject(
+                sql,
+                Integer.class,
+                filmId,
+                userId
+        );
+
+        return count != null && count > 0;
     }
 
     private void loadGenres(List<Film> films) {

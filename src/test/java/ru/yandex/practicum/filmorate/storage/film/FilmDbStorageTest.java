@@ -187,6 +187,15 @@ class FilmDbStorageTest {
         assertThat(popular).hasSize(2);
     }
 
+    @Test
+    void shouldAllowAddingSameLikeTwice() {
+        User user = createUser("user");
+        Film film = filmStorage.create(createFilm("Film"));
+
+        filmStorage.addLike(film.getId(), user.getId());
+        filmStorage.addLike(film.getId(), user.getId());
+    }
+
     private Film createFilm(String name) {
         return Film.builder()
                 .name(name)
