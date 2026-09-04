@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -16,14 +15,19 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
 
-    @Autowired
     public FilmService(
             FilmStorage filmStorage,
-            UserStorage userStorage
+            UserStorage userStorage,
+            MpaStorage mpaStorage,
+            GenreStorage genreStorage
     ) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
     public Collection<Film> getAll() {
@@ -35,10 +39,12 @@ public class FilmService {
     }
 
     public Film create(Film film) {
+        validateReferences(film);
         return filmStorage.create(film);
     }
 
     public Film update(Film film) {
+        validateReferences(film);
         return filmStorage.update(film);
     }
 
@@ -47,29 +53,26 @@ public class FilmService {
     }
 
     public void addLike(int filmId, int userId) {
-        Film film = filmStorage.findById(filmId);
-        User user = userStorage.findById(userId);
-
-        film.getLikes().add(user.getId());
-        filmStorage.update(film);
+        userStorage.findById(userId);
+        filmStorage.addLike(filmId, userId);
     }
 
     public void removeLike(int filmId, int userId) {
-        Film film = filmStorage.findById(filmId);
-        User user = userStorage.findById(userId);
-
-        film.getLikes().remove(user.getId());
-        filmStorage.update(film);
+        userStorage.findById(userId);
+        filmStorage.removeLike(filmId, userId);
     }
 
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.findAll().stream()
-                .sorted(
-                        Comparator.comparingInt(
-                                (Film film) -> film.getLikes().size()
-                        ).reversed()
-                )
-                .limit(count)
-                .toList();
+        return filmStorage.findPopular(count);
+    }
+
+    private void validateReferences(Film film) {
+        mpaStorage.findById(film.getMpa().getId());
+
+        if (film.getGenres() != null) {
+            film.getGenres().forEach(genre ->
+                    genreStorage.findById(genre.getId())
+            );
+        }
     }
 }

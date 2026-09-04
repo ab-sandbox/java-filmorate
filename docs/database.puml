@@ -1,0 +1,72 @@
+@startuml
+
+entity users {
+    * user_id : integer <<PK>>
+    --
+    email : varchar <<NOT NULL, UNIQUE>>
+    login : varchar <<NOT NULL, UNIQUE>>
+    name : varchar <<NOT NULL>>
+    birthday : date <<NOT NULL>>
+}
+
+entity films {
+    * film_id : integer <<PK>>
+    --
+    name : varchar <<NOT NULL>>
+    description : varchar(200)
+    release_date : date <<NOT NULL>>
+    duration : integer <<NOT NULL>>
+    mpa_id : integer <<FK, NOT NULL>>
+}
+
+entity mpa {
+    * mpa_id : integer <<PK>>
+    --
+    name : varchar <<NOT NULL, UNIQUE>>
+}
+
+entity genres {
+    * genre_id : integer <<PK>>
+    --
+    name : varchar <<NOT NULL, UNIQUE>>
+}
+
+entity film_genres {
+    * film_genre_id : integer <<PK>>
+    --
+    film_id : integer <<FK, NOT NULL>>
+    genre_id : integer <<FK, NOT NULL>>
+    --
+    (film_id, genre_id) <<UNIQUE>>
+}
+
+entity film_likes {
+    * like_id : integer <<PK>>
+    --
+    film_id : integer <<FK, NOT NULL>>
+    user_id : integer <<FK, NOT NULL>>
+    --
+    (film_id, user_id) <<UNIQUE>>
+}
+
+entity friendships {
+    * friendship_id : integer <<PK>>
+    --
+    requester_id : integer <<FK, NOT NULL>>
+    receiver_id : integer <<FK, NOT NULL>>
+    --
+    (requester_id, receiver_id) <<UNIQUE>>
+}
+
+mpa ||--o{ films
+
+films ||--o{ film_genres
+genres ||--o{ film_genres
+
+films ||--o{ film_likes
+users ||--o{ film_likes
+
+users ||--o{ friendships : requester
+users ||--o{ friendships : receiver
+
+@enduml

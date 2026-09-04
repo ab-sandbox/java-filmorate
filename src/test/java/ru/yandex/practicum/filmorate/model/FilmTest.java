@@ -92,6 +92,7 @@ class FilmTest {
                 .description("Science fiction")
                 .releaseDate(LocalDate.of(2014, 11, 7))
                 .duration(169)
+                .mpa(new Mpa(3, "PG-13"))
                 .build();
     }
 }
